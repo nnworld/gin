@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/mattn/go-isatty"
@@ -76,6 +77,8 @@ type LogFormatterParams struct {
 	BodySize int
 	// Keys are the keys set on the request's context.
 	Keys map[string]any
+	// This mutex protects Keys map.
+	Mu *sync.RWMutex
 }
 
 // StatusCodeColor is the ANSI color for appropriately logging http status code to a terminal.
@@ -245,6 +248,7 @@ func LoggerWithConfig(conf LoggerConfig) HandlerFunc {
 				Request: c.Request,
 				isTerm:  isTerm,
 				Keys:    c.Keys,
+				Mu:      &c.mu,
 			}
 
 			// Stop timer
